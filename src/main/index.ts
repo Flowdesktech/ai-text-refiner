@@ -205,6 +205,10 @@ async function runRefine(selectAll: boolean): Promise<void> {
     // plus the image back as one rich fragment, so the image is never lost.
     const hasImage = capture.hasImage
     const imageTags = hasImage ? extractImageTags(capture.html) : ''
+    // Grab the bitmap too: many editors only re-insert the image from the
+    // bitmap flavor (their HTML <img src> is a blob:/file: URL that can't be
+    // pasted). Including both the bitmap and the <img> HTML covers both kinds.
+    const imageBitmap = hasImage ? readClipboardImage() : null
     // Strip the plain-text placeholder the app leaves where the image sits, so
     // the word ("image", alt text, U+FFFC) isn't refined into stray text.
     captured = hasImage ? stripImagePlaceholders(capture.text, capture.html) : capture.text
@@ -214,10 +218,6 @@ async function runRefine(selectAll: boolean): Promise<void> {
       return
     }
 
-    // Prefer the HTML <img> (the real image). Only fall back to the flattened
-    // bitmap when there's no recoverable img tag, so we never paste a duplicate
-    // static copy alongside the real one.
-    const imageBitmap = hasImage && !imageTags ? readClipboardImage() : null
     const apiKey = getApiKey(settings.provider) || ''
 
     if (settings.inlineProgress) {

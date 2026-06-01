@@ -1,5 +1,3 @@
-<!-- Replace "your-username" with your GitHub username/org throughout this file. -->
-
 <p align="center">
   <img src="assets/banner.svg" alt="AI Text Refiner" width="100%" />
 </p>
@@ -26,8 +24,8 @@
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" />
   <img alt="React" src="https://img.shields.io/badge/React-20232a?style=flat-square&logo=react&logoColor=61DAFB" />
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-22c55e?style=flat-square" /></a>
-  <a href="https://github.com/your-username/ai-text-refiner/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/your-username/ai-text-refiner?style=flat-square&color=eab308" /></a>
-  <!-- <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/your-username/ai-text-refiner/ci.yml?style=flat-square" /> -->
+  <a href="https://github.com/flowdeskadmin/ai-text-refiner/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/flowdeskadmin/ai-text-refiner?style=flat-square&color=eab308" /></a>
+  <!-- <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/flowdeskadmin/ai-text-refiner/ci.yml?style=flat-square" /> -->
 </p>
 
 ---
@@ -40,25 +38,11 @@ Every app has a text box, but none of them have your favorite LLM and your favor
 - ⚡ **Universal** — works in any app via clipboard + synthetic keystrokes; no per-app plugins.
 - 🎛️ **Yours** — your provider, your model, your prompt, your hotkeys.
 
-> [!NOTE]
-> Replace `your-username` in the badges/links above with your GitHub slug, and drop a real
-> screenshot or demo GIF into `assets/` (see [Demo](#-demo)) for maximum stars. ⭐
-
-## 🎬 Demo
-
-<!-- Record a short GIF of selecting text + hotkey + in-place refine, save it to assets/demo.gif -->
-<p align="center">
-  <img src="assets/demo.gif" alt="AI Text Refiner demo" width="720" />
-</p>
-
-> Tip: tools like [ScreenToGif](https://www.screentogif.com/) (Windows), [Kap](https://getkap.co/)
-> (macOS), or [Peek](https://github.com/phw/peek) (Linux) make great READMEs.
-
 ## 🚀 Quick start
 
 ```bash
 # 1. Clone & install
-git clone https://github.com/your-username/ai-text-refiner.git
+git clone https://github.com/Flowdesktech/ai-text-refiner.git
 cd ai-text-refiner
 npm install
 
@@ -230,7 +214,7 @@ option lets you type any model id.
 - [ ] Per-app prompt overrides
 - [ ] Signed & notarized release binaries
 
-Have an idea? [Open an issue](https://github.com/your-username/ai-text-refiner/issues/new/choose). 💡
+Have an idea? [Open an issue](https://github.com/flowdeskadmin/ai-text-refiner/issues/new/choose). 💡
 
 ## 🤝 Contributing
 
