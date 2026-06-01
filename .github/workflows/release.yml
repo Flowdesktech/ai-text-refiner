@@ -1,0 +1,152 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    environment: ${{ vars.ENABLE_CODE_SIGNING == 'true' && 'production' || '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows (unsigned)
+        if: vars.ENABLE_CODE_SIGNING != 'true'
+        run: npm run pack:win
+
+      - name: Build Windows (signed)
+        if: vars.ENABLE_CODE_SIGNING == 'true'
+        run: npm run pack:win
+        env:
+          CSC_LINK: ${{ secrets.WINDOWS_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+
+      # Upload the full release/ folder (installer + metadata).
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-builds
+          path: release
+          retention-days: 5
+
+  build-mac:
+    runs-on: macos-latest
+    environment: ${{ vars.ENABLE_CODE_SIGNING == 'true' && 'production' || '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS (unsigned)
+        if: vars.ENABLE_CODE_SIGNING != 'true'
+        run: npm run pack:mac
+        env:
+          # Skip ad-hoc/identity signing for unsigned CI builds.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Build macOS (signed & notarized)
+        if: vars.ENABLE_CODE_SIGNING == 'true'
+        run: npm run pack:mac
+        env:
+          CSC_LINK: ${{ secrets.APPLE_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-builds
+          path: release
+          retention-days: 5
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Linux
+        run: npm run pack:linux
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-builds
+          path: release
+          retention-days: 5
+
+  create-release:
+    needs: [build-windows, build-mac, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: AI Text Refiner ${{ github.ref_name }}
+          body: |
+            ### AI Text Refiner ${{ github.ref_name }}
+
+            Installers for **Windows**, **macOS**, and **Linux** are attached below.
+
+            | Platform | Asset |
+            | --- | --- |
+            | Windows | `*-setup.exe` (NSIS installer) |
+            | macOS | `*.dmg` |
+            | Linux | `*.AppImage` |
+
+            > macOS/Windows builds are unsigned unless code signing is configured
+            > (see the repository variables/secrets). You may need to allow the app
+            > through Gatekeeper / SmartScreen on first launch.
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            artifacts/windows-builds/*
+            artifacts/mac-builds/*
+            artifacts/linux-builds/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
